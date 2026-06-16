@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>生成AIを活用した開発ワークフロー</title>
+  <meta name="description" content="アイデア創出から設計・実装・運用まで、工程ごとに最適な生成AIを使い分ける実践的なワークフローの紹介資料。" />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-soft: #f5f7fa;
+      --bg-panel: #fafbfc;
+      --ink: #1f2733;
+      --ink-sub: #4a5563;
+      --ink-muted: #8a93a1;
+      --accent: #16448a;
+      --accent-soft: #eef3fb;
+      --line: #e3e8ef;
+      --line-strong: #d3dae3;
+      --maxw: 940px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.85;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+      font-feature-settings: "palt";
+    }
+
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+
+    /* ── HEADER BAR ── */
+    .topbar { height: 4px; background: var(--accent); }
+    nav {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+    .nav-title { font-size: 14px; font-weight: 700; letter-spacing: 0.01em; }
+    .nav-title span { color: var(--ink-muted); font-weight: 500; }
+    .nav-meta { font-size: 12px; color: var(--ink-muted); }
+
+    /* ── COVER ── */
+    .cover { padding: 76px 0 56px; border-bottom: 1px solid var(--line); }
+    .kicker {
+      font-size: 12.5px; font-weight: 700; letter-spacing: 0.18em;
+      color: var(--accent); margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(26px, 4.4vw, 40px); font-weight: 900; line-height: 1.4;
+      letter-spacing: 0.01em; margin-bottom: 22px;
+    }
+    .cover .lead {
+      max-width: 760px; font-size: clamp(15px, 1.9vw, 17px); color: var(--ink-sub);
+    }
+    .cover-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+    .cover-points span {
+      font-size: 13px; color: var(--ink-sub); font-weight: 500;
+      border: 1px solid var(--line-strong); border-radius: 4px; padding: 7px 14px;
+      background: var(--bg-panel);
+    }
+
+    /* ── SECTION ── */
+    section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+    .sec-head { margin-bottom: 30px; }
+    .sec-no {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.14em; color: var(--accent);
+      display: inline-block; margin-bottom: 8px;
+    }
+    h2 { font-size: clamp(20px, 2.8vw, 25px); font-weight: 800; line-height: 1.5; letter-spacing: 0.01em; }
+    .sec-desc { color: var(--ink-sub); max-width: 740px; margin-top: 12px; font-size: 15px; }
+
+    p.body { color: var(--ink-sub); max-width: 760px; }
+    strong { color: var(--ink); font-weight: 700; }
+
+    /* ── PURPOSE (3 col) ── */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+    .mini {
+      border: 1px solid var(--line); border-radius: 8px; padding: 22px 20px; background: var(--bg-panel);
+    }
+    .mini .lbl { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; }
+    .mini h3 { font-size: 16px; font-weight: 700; margin: 8px 0 6px; }
+    .mini p { font-size: 13.5px; color: var(--ink-sub); }
+
+    /* ── PIPELINE ── */
+    .pipe {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 28px;
+    }
+    .pstep {
+      border: 1px solid var(--line); border-top: 3px solid var(--accent);
+      border-radius: 6px; padding: 20px 18px; background: var(--bg);
+    }
+    .pstep .pn { font-size: 12px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.08em; }
+    .pstep .pp { font-size: 16px; font-weight: 800; margin: 8px 0 2px; }
+    .pstep .pt { font-size: 13px; font-weight: 700; color: var(--accent); }
+    .pstep .pr { font-size: 12.5px; color: var(--ink-sub); margin-top: 10px; }
+
+    /* ── TOOL TABLE/CARDS ── */
+    .tool-list { margin-top: 24px; display: grid; gap: 14px; }
+    .tool {
+      border: 1px solid var(--line); border-radius: 8px; padding: 24px 26px; background: var(--bg);
+      display: grid; grid-template-columns: 190px 1fr; gap: 24px; align-items: start;
+    }
+    .tool .lhs { border-right: 1px solid var(--line); padding-right: 22px; }
+    .tool .step-lbl { font-size: 11.5px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.1em; }
+    .tool .tool-nm { font-size: 19px; font-weight: 800; margin-top: 6px; }
+    .tool .tool-use { font-size: 12.5px; color: var(--ink-sub); margin-top: 6px; }
+    .tool .rhs dl { display: grid; grid-template-columns: 92px 1fr; row-gap: 10px; column-gap: 16px; }
+    .tool .rhs dt { font-size: 12.5px; font-weight: 700; color: var(--accent); }
+    .tool .rhs dd { font-size: 14px; color: var(--ink-sub); }
+
+    /* ── SERVICES ── */
+    .grid-3.svc { margin-top: 28px; }
+    .svc-card { border: 1px solid var(--line); border-radius: 8px; padding: 24px 22px; background: var(--bg); }
+    .svc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .svc-ic {
+      width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+      background: var(--bg-soft); border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .svc-ic svg { width: 22px; height: 22px; }
+    .svc-top .nm { font-size: 16px; font-weight: 800; }
+    .svc-top .rl { font-size: 11.5px; color: var(--ink-muted); }
+    .svc-card p { font-size: 13.5px; color: var(--ink-sub); }
+    .svc-flow {
+      margin-top: 22px; font-size: 13px; color: var(--ink-sub);
+      background: var(--accent-soft); border: 1px solid var(--line); border-radius: 6px;
+      padding: 14px 18px; text-align: center;
+    }
+    .svc-flow b { color: var(--accent); font-weight: 700; }
+
+    /* ── CASE ── */
+    .case { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 10px; padding: 34px; }
+    .case .ttl { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .case .desc { font-size: 14.5px; color: var(--ink-sub); max-width: 720px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 26px 0 8px; }
+    .stat { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 18px 14px; text-align: center; }
+    .stat .num { font-size: 27px; font-weight: 900; color: var(--accent); line-height: 1.1; }
+    .stat .cap { font-size: 12px; color: var(--ink-sub); margin-top: 7px; }
+    .case .sub { font-size: 13px; font-weight: 700; color: var(--ink); margin: 26px 0 12px; letter-spacing: 0.02em; }
+    .feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 16px; }
+    .feats li { list-style: none; font-size: 13.5px; color: var(--ink-sub); padding-left: 16px; position: relative; }
+    .feats li::before { content: ''; position: absolute; left: 0; top: 11px; width: 6px; height: 6px; background: var(--accent); border-radius: 1px; }
+    .tech {
+      margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line-strong);
+      font-size: 13px; color: var(--ink-sub); line-height: 1.95;
+    }
+    .tech b { color: var(--ink); font-weight: 700; }
+
+    /* ── DETAILS (collapsible) ── */
+    .case details { margin-top: 20px; border-top: 1px solid var(--line-strong); }
+    .case summary {
+      cursor: pointer; list-style: none; padding: 15px 2px 4px;
+      font-size: 14px; font-weight: 700; color: var(--accent);
+      display: flex; align-items: center; gap: 9px;
+    }
+    .case summary::-webkit-details-marker { display: none; }
+    .case summary::before { content: '＋'; font-size: 14px; line-height: 1; width: 14px; text-align: center; }
+    .case details[open] summary::before { content: '−'; }
+    .detail-body { padding-top: 6px; }
+    .spec-cap { font-size: 13px; font-weight: 700; color: var(--ink); margin: 24px 0 8px; letter-spacing: 0.02em; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .spec-table {
+      width: 100%; border-collapse: collapse; font-size: 13.5px;
+      background: var(--bg); border: 1px solid var(--line);
+    }
+    .spec-table th, .spec-table td {
+      text-align: left; padding: 9px 14px; vertical-align: top;
+      border-bottom: 1px solid var(--line); border-right: 1px solid var(--line);
+    }
+    .spec-table tr:last-child td { border-bottom: none; }
+    .spec-table th:last-child, .spec-table td:last-child { border-right: none; }
+    .spec-table thead th { background: var(--accent-soft); color: var(--ink); font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+    .spec-table tbody td:first-child { font-weight: 700; color: var(--ink); white-space: nowrap; }
+    .spec-table tbody td { color: var(--ink-sub); }
+
+    /* ── APPLY ── */
+    .apply-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 28px; }
+    .apply {
+      border: 1px solid var(--line); border-radius: 8px; padding: 22px 24px; background: var(--bg);
+      display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start;
+    }
+    .apply .no { font-size: 16px; font-weight: 900; color: var(--accent); padding-top: 1px; }
+    .apply h3 { font-size: 15.5px; font-weight: 700; margin-bottom: 5px; }
+    .apply p { font-size: 13.5px; color: var(--ink-sub); }
+
+    /* ── MAPPING ── */
+    .map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 28px; }
+    .map-card { border: 1px solid var(--line); border-radius: 8px; padding: 24px 26px; background: var(--bg); }
+    .map-card .mh { display: flex; align-items: baseline; gap: 10px; }
+    .map-card .mt { font-size: 16px; font-weight: 800; }
+    .map-card .mtag { font-size: 12px; color: var(--ink-muted); }
+    .map-card .mrole { font-size: 13px; color: var(--accent); font-weight: 700; margin: 8px 0 12px; }
+    .map-card ul { padding: 0; }
+    .map-card li { list-style: none; font-size: 13.5px; color: var(--ink-sub); padding-left: 16px; position: relative; margin-bottom: 5px; }
+    .map-card li::before { content: ''; position: absolute; left: 0; top: 11px; width: 6px; height: 6px; background: var(--accent); border-radius: 1px; }
+    .map-card .corr { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line-strong); font-size: 12.5px; color: var(--ink-muted); }
+    .note {
+      margin-top: 26px; background: var(--bg-soft); border: 1px solid var(--line);
+      border-left: 3px solid var(--accent); border-radius: 6px; padding: 15px 20px;
+      font-size: 13px; color: var(--ink-sub); line-height: 1.8;
+    }
+    .note b { color: var(--ink); font-weight: 700; }
+
+    /* ── WORK FLOW ── */
+    .flow { margin-top: 18px; }
+    .flow-step { display: grid; grid-template-columns: 34px 1fr; gap: 16px; position: relative; padding-bottom: 20px; }
+    .flow-step:last-child { padding-bottom: 0; }
+    .flow-step:not(:last-child)::before { content: ''; position: absolute; left: 16px; top: 36px; bottom: 0; width: 2px; background: var(--line-strong); }
+    .flow-num {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+      font-family: 'Noto Sans JP', sans-serif; z-index: 1;
+    }
+    .flow-body { padding-top: 4px; }
+    .flow-tool {
+      display: inline-block; font-size: 11.5px; font-weight: 700; color: var(--accent);
+      background: var(--accent-soft); border: 1px solid var(--line); border-radius: 999px;
+      padding: 3px 12px; margin-bottom: 7px; margin-right: 6px;
+    }
+    .flow-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .flow-body p { font-size: 13.5px; color: var(--ink-sub); }
+
+    /* ── SUMMARY ── */
+    .summary { background: var(--accent); color: #fff; border-radius: 10px; padding: 38px 40px; }
+    .summary .sl { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; opacity: 0.7; margin-bottom: 14px; }
+    .summary p { font-size: clamp(16px, 2.3vw, 20px); font-weight: 700; line-height: 1.75; }
+    .summary p span { color: #bcd3f5; }
+
+    /* ── FOOTER ── */
+    footer { padding: 30px 0 44px; }
+    footer p { font-size: 12px; color: var(--ink-muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 820px) {
+      .grid-3, .pipe, .apply-list, .map { grid-template-columns: 1fr; }
+      .tool { grid-template-columns: 1fr; gap: 16px; }
+      .tool .lhs { border-right: none; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 14px; }
+      .tool .rhs dl { grid-template-columns: 80px 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .feats { grid-template-columns: 1fr; }
+      .case, .summary { padding: 26px; }
+      .nav-meta { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="wrap nav-inner">
+      <div class="nav-title">生成AIを活用した開発ワークフロー <span>／ 取り組み紹介</span></div>
+      <div class="nav-meta">2026</div>
+    </div>
+  </nav>
+
+  <!-- COVER -->
+  <header class="cover">
+    <div class="wrap">
+      <div class="kicker">GENERATIVE AI WORKFLOW</div>
+      <h1>生成AIを活用した開発ワークフロー</h1>
+      <p class="lead">アイデア創出から設計・実装・運用まで、工程ごとに役割の異なる生成AIを使い分けることで、開発の質とスピードを両立させる取り組みです。実際に開発・運用している<strong>就活支援アプリ（Web／iOS）</strong>を活用事例に、その進め方を紹介します。</p>
+      <div class="cover-points">
+        <span>アイデア出し ── ChatGPT</span>
+        <span>プロトタイプ ── Manus</span>
+        <span>設計相談 ── Claude</span>
+        <span>コーディング ── Claude Code</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 01 PURPOSE -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no">01 ｜ 目的</span>
+        <h2>1つのAIに任せきらず、工程ごとに使い分ける</h2>
+        <p class="sec-desc">同じ「生成AI」でも、発想を広げることに向くもの、動くものを素早く形にするもの、論理的に設計を詰めるもの、実際にコードを記述するものがあります。それぞれの得意分野に合わせて工程ごとに使い分けることで、検討の抜け漏れを抑えつつ開発を効率化しています。</p>
+      </div>
+      <div class="grid-3">
+        <div class="mini">
+          <div class="lbl">POINT 01</div>
+          <h3>検討段階から相談する</h3>
+          <p>企画・設計の段階からAIを相談相手とし、論点の洗い出しと検討の質を高めます。</p>
+        </div>
+        <div class="mini">
+          <div class="lbl">POINT 02</div>
+          <h3>早期に動かして確認する</h3>
+          <p>アイデアを試作で形にし、本格的に作り込む前に方向性を確認します。</p>
+        </div>
+        <div class="mini">
+          <div class="lbl">POINT 03</div>
+          <h3>実装・運用までつなげる</h3>
+          <p>設計から実装、本番運用までを一連の流れとして進めます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 PIPELINE -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no">02 ｜ 全体像</span>
+        <h2>4つの工程を、リレー形式で進める</h2>
+        <p class="sec-desc">各工程の成果を次の工程へ受け渡しながら、企画から実装まで一貫して進めます。</p>
+      </div>
+      <div class="pipe">
+        <div class="pstep">
+          <div class="pn">STEP 01</div>
+          <div class="pp">アイデア出し</div>
+          <div class="pt">ChatGPT</div>
+          <div class="pr">企画を発散させ、課題や機能の案を洗い出す</div>
+        </div>
+        <div class="pstep">
+          <div class="pn">STEP 02</div>
+          <div class="pp">プロトタイプ</div>
+          <div class="pt">Manus</div>
+          <div class="pr">アイデアを試作にして体験で検証する</div>
+        </div>
+        <div class="pstep">
+          <div class="pn">STEP 03</div>
+          <div class="pp">設計相談</div>
+          <div class="pt">Claude</div>
+          <div class="pr">構成・技術選定・トレードオフを検討する</div>
+        </div>
+        <div class="pstep">
+          <div class="pn">STEP 04</div>
+          <div class="pp">コーディング</div>
+          <div class="pt">Claude Code</div>
+          <div class="pr">実装・修正からデプロイまで実行する</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 TOOLS -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no">03 ｜ 工程別の活用ツール</span>
+        <h2>各工程で、何にどう使うか</h2>
+      </div>
+      <div class="tool-list">
+
+        <div class="tool">
+          <div class="lhs">
+            <div class="step-lbl">STEP 01 ｜ アイデア出し</div>
+            <div class="tool-nm">ChatGPT</div>
+            <div class="tool-use">企画の発散・ブレスト</div>
+          </div>
+          <div class="rhs">
+            <dl>
+              <dt>用途</dt><dd>企画の発散、想定課題の洗い出し、機能の優先度づけ、表現案の作成。</dd>
+              <dt>選定理由</dt><dd>幅広い案を返し、対話を重ねて発想を広げる用途に適している。</dd>
+              <dt>具体例</dt><dd>「対象ユーザーがつまずく場面」を起点に機能案を洗い出し、優先度を整理する。</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="tool">
+          <div class="lhs">
+            <div class="step-lbl">STEP 02 ｜ プロトタイプ</div>
+            <div class="tool-nm">Manus</div>
+            <div class="tool-use">試作による検証</div>
+          </div>
+          <div class="rhs">
+            <dl>
+              <dt>用途</dt><dd>アイデアを操作できる試作にし、画面遷移やデータの流れを確認する。</dd>
+              <dt>選定理由</dt><dd>指示から動く試作を生成でき、作り込む前に体験で確認できるため手戻りを抑えられる。</dd>
+              <dt>具体例</dt><dd>主要画面の試作を作成し、使い勝手を見極めてから本実装に移る。</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="tool">
+          <div class="lhs">
+            <div class="step-lbl">STEP 03 ｜ 設計相談</div>
+            <div class="tool-nm">Claude</div>
+            <div class="tool-use">設計・技術選定の検討</div>
+          </div>
+          <div class="rhs">
+            <dl>
+              <dt>用途</dt><dd>構成、技術選定、データモデル、各案のトレードオフの検討。</dd>
+              <dt>選定理由</dt><dd>長い文脈を保ったまま、判断の根拠を示しながら整理できる点が設計検討に適している。</dd>
+              <dt>具体例</dt><dd>「この構成で妥当か、代替案はあるか」を相談し、データ設計や方針を固める。</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="tool">
+          <div class="lhs">
+            <div class="step-lbl">STEP 04 ｜ コーディング</div>
+            <div class="tool-nm">Claude Code</div>
+            <div class="tool-use">実装・修正・デプロイ</div>
+          </div>
+          <div class="rhs">
+            <dl>
+              <dt>用途</dt><dd>既存のコードベース上での実装、リファクタリング、テスト、デプロイ。</dd>
+              <dt>選定理由</dt><dd>複数ファイルを横断して読み書きし、コマンド実行まで行える開発支援ツールである。</dd>
+              <dt>具体例</dt><dd>機能追加からクラウドへのデプロイ、不具合修正までを一連の流れで実行する。</dd>
+            </dl>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 SERVICES -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no">04 ｜ 外部サービスとの連携</span>
+        <h2>生成AIを組み込み、クラウドで運用する</h2>
+        <p class="sec-desc">生成AIで開発するだけでなく、外部サービスと連携して本番運用までつなげています。AIを製品の機能として組み込み、クラウド上で公開し、コードの変更が自動で反映される構成です。</p>
+      </div>
+      <div class="grid-3 svc">
+
+        <div class="svc-card">
+          <div class="svc-top">
+            <div class="svc-ic">
+              <svg viewBox="0 0 24 24" fill="#4285f4"><path d="M12 0c.6 6 5.4 10.8 12 12-6.6 1.2-11.4 6-12 12-.6-6-5.4-10.8-12-12C6.6 10.8 11.4 6 12 0z"/></svg>
+            </div>
+            <div>
+              <div class="nm">Gemini</div>
+              <div class="rl">AI機能の実装</div>
+            </div>
+          </div>
+          <p>文章添削やフィードバック、企業情報の生成など、<strong>アプリ内のAI機能をGemini APIで実装</strong>。生成AIを製品の機能として組み込んでいます。</p>
+        </div>
+
+        <div class="svc-card">
+          <div class="svc-top">
+            <div class="svc-ic">
+              <svg viewBox="0 0 24 24" fill="#1a73e8"><path d="M18.5 9.5h-.7a6 6 0 0 0-11.5-1.2A5 5 0 0 0 6 18h12.5a4.25 4.25 0 0 0 0-8.5z"/></svg>
+            </div>
+            <div>
+              <div class="nm">Google Cloud</div>
+              <div class="rl">本番インフラ</div>
+            </div>
+          </div>
+          <p>Cloud Run でアプリを公開し、Cloud Build で<strong>自動デプロイ</strong>。データベースやストレージ、定期処理もクラウド上で運用しています。</p>
+        </div>
+
+        <div class="svc-card">
+          <div class="svc-top">
+            <div class="svc-ic">
+              <svg viewBox="0 0 16 16" fill="#24292f"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+            </div>
+            <div>
+              <div class="nm">GitHub</div>
+              <div class="rl">ソース管理・デプロイ起点</div>
+            </div>
+          </div>
+          <p>ソースコードを<strong>バージョン管理</strong>し、開発から本番への反映で<strong>自動ビルド・デプロイ</strong>が実行されます。Claude Code と連携して運用しています。</p>
+        </div>
+
+      </div>
+      <div class="svc-flow">連携の流れ ：　Claude Code　→　<b>GitHub</b>（コード管理）　→　<b>Google Cloud</b>（自動デプロイ）　／　アプリは <b>Gemini</b> で動作</div>
+    </div>
+  </section>
+
+  <!-- 05 APPLY -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no">05 ｜ 業務への応用</span>
+        <h2>社内で使えるAIを前提に、業務へどう活かすか</h2>
+        <p class="sec-desc">業務では、用途に応じて複数の生成AIを活用できます。例えば、エディタ上で使う <strong>GitHub Copilot（VS Code）</strong> や、ターミナルから使う <strong>Claude Code</strong>、社内データにも接続でき機密も扱える <strong>社内チャットAI</strong> などです。日々の業務には<strong>ドキュメント作成・既存コードの調査・テスト・定型作業</strong>といった地道な工程が多く含まれ、こうした作業こそAIを活かして着実に効率化できる領域です。ツールごとの強みに合わせて使い分けることで、その効果はさらに高まります。</p>
+      </div>
+
+      <div class="map">
+        <div class="map-card">
+          <div class="mh"><span class="mt">社内チャットAI</span><span class="mtag">機密対応</span></div>
+          <div class="mrole">社内データに繋いで、安全に・幅広く</div>
+          <ul>
+            <li>社内文書やWebに接続して要約・検索（機密情報も入力可）</li>
+            <li>議事録づくりや文章の要約・整形など業務向けの機能が豊富</li>
+            <li>用途に応じてモデル（GPT-5.1／Gemini 2.5）を切替</li>
+          </ul>
+          <div class="corr">機密を扱え、開発以外の業務も広くカバーする中心的な入口</div>
+        </div>
+        <div class="map-card">
+          <div class="mh"><span class="mt">GitHub Copilot</span><span class="mtag">VS Code</span></div>
+          <div class="mrole">エディタの中で、書きながら使う</div>
+          <ul>
+            <li>コーディング中の補完・候補提示でテンポを上げる</li>
+            <li>エディタ内での質問・コードの説明・調査</li>
+            <li>その場で完結する編集（差分を見て採用/却下）</li>
+          </ul>
+          <div class="corr">手を動かしている最中の作業を、隣で補助する</div>
+        </div>
+        <div class="map-card">
+          <div class="mh"><span class="mt">Claude Code</span><span class="mtag">API経由・CLI</span></div>
+          <div class="mrole">ターミナルで、まとめて任せる</div>
+          <ul>
+            <li>既存コードの横断調査・複数ファイルの改修</li>
+            <li>まとまった実装・修正を一連で実行</li>
+            <li>定型処理のスクリプト化・自動化</li>
+          </ul>
+          <div class="corr">一連の作業を渡して、自走で進めてもらう</div>
+        </div>
+      </div>
+      <p class="body" style="margin-top:16px;font-size:13px;color:var(--ink-muted)">※ とくに GitHub Copilot と Claude Code はできることが重なる部分も多く、明確に分かれるわけではありません。「エディタ内で書きながら使う」か「まとまった作業を任せる」か、場面と強みに合わせて使い分けます。また、初期の発散や雑多な相談はチャットAIで進めると、コーディングAI（Claude Code）の限られた文脈（コンテキスト）を実装作業に集中させられます。</p>
+
+      <div class="apply-list">
+        <div class="apply">
+          <div class="no">01</div>
+          <div><h3>設計書・ドキュメント作成</h3><p>社内チャットAIで仕様書・報告書・議事録の下書きや既存資料の要約を作り、人は内容の確認と調整に集中します。</p></div>
+        </div>
+        <div class="apply">
+          <div class="no">02</div>
+          <div><h3>テスト・調査作業の補助</h3><p>テスト観点やテストケースの洗い出し、ログ・エラーメッセージの調査をCopilotで補助します。</p></div>
+        </div>
+        <div class="apply">
+          <div class="no">03</div>
+          <div><h3>既存コードの理解・改修</h3><p>Claude Code（CLI）で大きな既存コードを読み解き、修正箇所の特定や改修のたたき台づくりに活用します。</p></div>
+        </div>
+        <div class="apply">
+          <div class="no">04</div>
+          <div><h3>繰り返し作業の自動化</h3><p>データ整形や一括変換などの定型作業をClaude Codeでスクリプト化し、手作業を削減します。</p></div>
+        </div>
+      </div>
+
+      <div class="spec-cap" style="margin-top:36px">作業例：既存システムの改修を1件こなす流れ</div>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-body">
+            <span class="flow-tool">社内チャットAI</span>
+            <h4>調査・方針づくり</h4>
+            <p>仕様書や過去資料・社内情報を検索して背景を把握し、改修方針のたたき台をまとめる。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-body">
+            <span class="flow-tool">Claude Code（CLI）</span>
+            <h4>コード調査・実装</h4>
+            <p>既存コードを横断的に読み解いて修正箇所を特定し、改修のたたき台を実装する。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-body">
+            <span class="flow-tool">GitHub Copilot（VS Code）</span>
+            <h4>仕上げ</h4>
+            <p>エディタ内で補完を効かせながら細部を調整し、コードを仕上げる。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-body">
+            <span class="flow-tool">社内チャットAI</span>
+            <span class="flow-tool">Claude Code / Copilot</span>
+            <h4>テスト・報告</h4>
+            <p>テスト観点の洗い出しや報告書・エビデンスの文面づくりは社内チャットAIで行い、テストケースや報告書は Claude Code・Copilot で <strong>Excel 等のファイルとして出力</strong>する（スクリプト生成で自動化）。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <b>留意点</b>　モデルが最新版でなくても、用途を絞れば実用上は十分です。また、機密情報・個人情報の入力は社内ルールに従い、利用可否を確認したうえで取り扱います。AIの出力は最終確認を前提とし、判断と責任は人が担います。
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 SUMMARY -->
+  <section style="border-bottom:none">
+    <div class="wrap">
+      <div class="summary">
+        <div class="sl">まとめ</div>
+        <p>生成AIを<span>「役割で使い分ける」</span>ことで、アイデアから実装・運用までを一連の流れとして進められます。この考え方は、<span>社内で使えるAI（GitHub Copilot・Claude Code）の範囲でも</span>、企画・調査・設計・実装の各業務にそのまま応用できると考えています。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 参考 ｜ 開発事例 -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-no">参考 ｜ 開発事例</span>
+        <h2>本ワークフローで、就活支援サービスを開発</h2>
+      </div>
+      <div class="case">
+        <p class="desc">上記の進め方で、実際に開発・運用している就活支援サービスです。企画・設計・実装・インフラ構築までを生成AIの使い分けで進め、Webとモバイル（iOS）の両方を開発・運用しています。</p>
+
+        <div class="spec-cap" style="margin-top:22px">プロジェクトのきっかけ</div>
+        <p class="desc">得意領域である GCP（Google Cloud）を実際の案件で扱う機会が社内ではまだなかったため、自主学習を兼ねて Web アプリの開発を始めたことがきっかけです。その後、Google の XPRIZE ハッカソンの動きを見て応募したいと考え、プロダクトとしての優位性を高めるために iOS アプリの開発にも着手しました。現在は大学時代の同級生 2 名と協力して進めています。</p>
+
+        <details>
+          <summary>開発したものの中身を見る（主な機能・技術構成）</summary>
+          <div class="detail-body">
+            <div class="sub">主な機能</div>
+            <ul class="feats">
+              <li>ES（エントリーシート）添削</li>
+              <li>音声面接練習</li>
+              <li>SPI対策問題</li>
+              <li>講義動画</li>
+              <li>適性診断</li>
+              <li>グループディスカッション練習</li>
+              <li>オンラインインターン体験</li>
+              <li>AIチャット相談</li>
+              <li>メール連携（選考状況の自動更新）</li>
+              <li>選考管理ボード</li>
+              <li>就活ロードマップ</li>
+              <li>プッシュ通知</li>
+              <li>管理コンソール</li>
+            </ul>
+            <div class="tech">
+              <div class="spec-cap">技術構成</div>
+              <div class="table-wrap">
+                <table class="spec-table">
+                  <thead><tr><th>レイヤー</th><th>採用技術</th></tr></thead>
+                  <tbody>
+                    <tr><td>Webフロントエンド</td><td>React ／ TypeScript ／ Tailwind CSS</td></tr>
+                    <tr><td>バックエンド</td><td>Node.js ／ Express ／ tRPC ／ Drizzle ORM</td></tr>
+                    <tr><td>データベース</td><td>MySQL</td></tr>
+                    <tr><td>モバイル（iOS）</td><td>React Native（Expo）</td></tr>
+                    <tr><td>生成AI</td><td>Gemini</td></tr>
+                    <tr><td>インフラ</td><td>Google Cloud（下表のサービスを利用）</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="spec-cap">利用しているGoogle Cloud（GCP）サービス</div>
+              <div class="table-wrap">
+                <table class="spec-table">
+                  <thead><tr><th>サービス</th><th>役割</th></tr></thead>
+                  <tbody>
+                    <tr><td>Cloud Run</td><td>アプリ（バックエンド・Web・LP）をコンテナとして公開・実行</td></tr>
+                    <tr><td>Cloud Run Jobs</td><td>定期バッチ処理（ES締切情報の収集など）の実行</td></tr>
+                    <tr><td>Cloud Build</td><td>ソースのビルドからデプロイまでを自動化（CI/CD）</td></tr>
+                    <tr><td>Artifact Registry</td><td>ビルドしたコンテナイメージの保管</td></tr>
+                    <tr><td>Cloud SQL</td><td>本番データベース（MySQL）の運用・管理</td></tr>
+                    <tr><td>Cloud Storage</td><td>講義動画や画像などのファイル保存・配信</td></tr>
+                    <tr><td>Cloud Scheduler</td><td>バッチや通知の定期実行（スケジューリング）</td></tr>
+                    <tr><td>Cloud DNS</td><td>独自ドメインの管理（メール連携のMXレコード等）</td></tr>
+                    <tr><td>Cloud Logging</td><td>実行ログの収集・監視</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p style="margin-top:16px">いずれの工程も、前述の4ツールの使い分けにより設計から実装・デプロイまで進めています。</p>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap">
+      <p>本資料は、生成AI活用の取り組み紹介を目的として作成したものです。｜ アイデア出し：ChatGPT　／　プロトタイプ：Manus　／　設計相談：Claude　／　コーディング：Claude Code</p>
+    </div>
+  </footer>
+
+</body>
+</html>
